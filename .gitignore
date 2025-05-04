@@ -1,0 +1,19 @@
+﻿# Build
+bin/
+obj/
+
+# VS
+.vs/
+*.user
+*.suo
+
+# VSCode
+.vscode/
+
+# Datos locales
+*.mdf
+*.ldf
+*.db
+
+# Config local
+appsettings.Development.json
