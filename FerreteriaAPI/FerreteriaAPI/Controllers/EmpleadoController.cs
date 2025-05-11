@@ -7,11 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FerreteriaAPI.Data;
 using FerreteriaAPI.Models;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace FerreteriaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
+
     public class EmpleadoController : ControllerBase
     {
         private readonly FerreteriaContext _context;
@@ -78,7 +82,12 @@ namespace FerreteriaAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Empleado>> PostEmpleado(Empleado empleado)
         {
+
+            // Hashear la contraseña antes de guardar
+            empleado.Contrasena = BCrypt.Net.BCrypt.HashPassword(empleado.Contrasena);
+
             _context.Empleados.Add(empleado);
+
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetEmpleado", new { id = empleado.Id }, empleado);
@@ -106,3 +115,4 @@ namespace FerreteriaAPI.Controllers
         }
     }
 }
+

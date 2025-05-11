@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FerreteriaAPI.Data;
 using FerreteriaAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FerreteriaAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class FacturaController : ControllerBase
     {
         private readonly FerreteriaContext _context;
