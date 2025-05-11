@@ -1,6 +1,6 @@
-# 🛠️ Ferretería API – Sistema de Facturación
+# 🛠️ Ferretería API – Sistema de Facturación con Seguridad JWT
 
-Este proyecto implementa una API RESTful con ASP.NET Core y Entity Framework Core para gestionar empleados, productos, facturas y los detalles de cada venta. Ideal para una ferretería o comercio similar.
+Este proyecto implementa una API RESTful en **ASP.NET Core** para gestionar empleados, productos, facturas y sesiones de usuario autenticadas con **JWT** y cacheadas con `IMemoryCache`.
 
 ---
 
@@ -9,92 +9,88 @@ Este proyecto implementa una API RESTful con ASP.NET Core y Entity Framework Cor
 - ASP.NET Core Web API
 - Entity Framework Core
 - SQL Server
-- Swagger (OpenAPI)
+- JWT (Json Web Token)
+- BCrypt.Net para hashing de contraseñas
+- IMemoryCache para gestión de sesiones activas
+- Swagger / OpenAPI
 - Visual Studio 2022
 
 ---
 
-## 📦 Estructura de Entidades
+## 🔐 Seguridad Implementada
 
-### 🧑 Empleado
-```csharp
-public class Empleado
-{
-    int Id;
-    string Nombre;
-    string Cargo;
-}
-
-### 📦 Item
-```csharp
-public class Item
-{
-    int Id;
-    string Nombre;
-    decimal Precio;
-    int StockDisponible;
-}
-
-### 🧾 Factura
-```csharp
-
-public class Factura
-{
-    public int Id { get; set; }
-    public DateTime Fecha { get; set; } = DateTime.Now;
-    public int EmpleadoId { get; set; }
-    public Empleado? Empleado { get; set; }
-    public bool EsAnulada { get; set; } = false;
-    public List<FacturaDetalle> Detalles { get; set; } = new();
-}
-
-### 🧾 FacturaDetalle
-```csharp
-public class FacturaDetalle
-{
-    public int Id { get; set; }
-    public int FacturaId { get; set; }
-    public Factura? Factura { get; set; }
-    public int ItemId { get; set; }
-    public Item? Item { get; set; }
-    public int Cantidad { get; set; }
-    public decimal PrecioUnitario { get; set; }
-}
+- Autenticación con **JWT Bearer**
+- Contraseñas hasheadas con **BCrypt**
+- Sesiones activas almacenadas en memoria con **IMemoryCache**
+- Autorización por roles (`[Authorize(Roles = "Admin")]`)
 
 ---
 
+## 📦 Funcionalidades principales
 
-## 🔧 Endpoints disponibles
+### 🧑 Empleados
+- Crear, listar, actualizar y eliminar empleados
+- Registro de contraseñas seguras
 
-### 🧑 Empleado – `/api/Empleado`
-- `GET` - Listar empleados
-- `GET /{id}` - Ver un empleado por ID
-- `POST` - Crear nuevo empleado
-- `PUT /{id}` - Editar empleado existente
-- `DELETE /{id}` - Eliminar empleado
+### 📦 Items
+- CRUD de productos (con validación de stock)
 
----
+### 🧾 Facturas
+- Crear y anular facturas (soft delete)
+- Asociar múltiples productos a cada factura
+- Actualización automática del stock
 
-### 📦 Item – `/api/Item`
-- `GET` - Listar todos los items
-- `GET /{id}` - Ver un item específico
-- `POST` - Crear nuevo item
-- `PUT /{id}` - Editar item
-- `DELETE /{id}` - Eliminar item
-
----
-
-### 🧾 Factura – `/api/Factura`
-- `GET` - Listar todas las facturas activas (excluye anuladas)
-- `GET /{id}` - Ver una factura con detalles, empleado e ítems
-- `POST` - Crear nueva factura (requiere solo `empleadoId`)
-- `PUT /{id}` - Editar datos generales de la factura (ej: cambiar `empleadoId`)
-- `PATCH /anular/{id}` - Anular factura (marca `EsAnulada = true`, no se borra)
+### 🧠 Sesión y Autenticación
+- Login en `/api/Auth/login` genera token JWT
+- Sesión activa almacenada con clave `session_{id}`
+- Verificación de sesión activa: `/api/Auth/session/{id}`
 
 ---
 
-### 📑 FacturaDetalle – `/api/FacturaDetalle`
-- `GET /{id}` - Ver un detalle específico
-- `POST` - Agregar ítem a factura (valida que haya stock suficiente)
-- `PUT /{id}` - Modificar cantidad o precio (ajusta stock correctamente)
-- `DELETE /{id}` - Eliminar ítem de factura y devolver el stock al inventario
+## 🧪 Probar en Swagger
+
+1. Ir a `/swagger`
+2. Hacer login en `/api/Auth/login`
+3. Copiar el token JWT
+4. Clic en "Authorize" y pegar: `Bearer {tu_token}`
+5. Acceder a endpoints protegidos como `/api/Empleado`
+
+---
+
+## 🧠 Ejemplo JSON para login
+
+```
+POST /api/Auth/login
+{
+  "usuario": "admin",
+  "contrasena": "123"
+}
+```
+
+---
+
+## 🧠 Ejemplo JSON para crear empleado
+
+```
+POST /api/Empleado
+{
+  "nombre": "admin",
+  "cargo": "Administrador",
+  "contrasena": "123"
+}
+```
+
+---
+
+## 📁 Estructura de Carpetas
+
+- `Models/` → Clases de dominio
+- `Controllers/` → Endpoints API
+- `Data/` → DbContext y migraciones
+- `Migrations/` → EF Core Migrations
+
+---
+
+## 📌 Autor
+
+Desarrollado por **Jhoao Reyes** como proyecto backend educativo.
